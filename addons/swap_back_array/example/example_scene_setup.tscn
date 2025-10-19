@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="./example_swap_back_array.gd" id="1"]
+[ext_resource type="PackedScene" path="./example_spawn_scene.tscn" id="2"]
+
+[node name="ExampleScene" type="Node3D"]
+script = ExtResource("1")
+spawn_scene = ExtResource("2")
+max_instances = 5
+spawn_radius = 2.0
