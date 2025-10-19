@@ -1,2 +1,6 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# .gitattributes
+/addons/swap_back_array/* export-ignore
+/addons/swap_back_array/** -export-ignore
