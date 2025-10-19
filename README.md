@@ -12,8 +12,8 @@ A lightweight Godot 4.4+ addon providing a `SwapBackArray` resource for efficien
 ## Usage
 ```gdscript
 # Create a SwapBackArray for Node3D
-var array = SwapBackArray.new(TYPE_OBJECT)
-var node = Node3D.new()
+var array: SwapBackArray = SwapBackArray.new(TYPE_OBJECT)
+var node: Node3D = Node3D.new()
 array.append(node)  # Adds node, names it "0"
 array.remove(0)     # Removes node, frees it
 print(array.get_by_index(0))  # Access items
