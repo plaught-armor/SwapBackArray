@@ -1,5 +1,5 @@
 
-# SwapBackArray Addon for Godot 4.5
+# SwapBackArray Addon for Godot 4.4+
 
 ## Description
 A lightweight Godot 4.5 addon providing a `SwapBackArray` resource for efficient array management. Features O(1) removal using the swap-back technique, type enforcement via `Variant.Type`, and automatic naming/freeing for `TYPE_OBJECT` items (e.g., `Node3D`).
