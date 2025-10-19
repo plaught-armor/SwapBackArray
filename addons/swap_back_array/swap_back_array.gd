@@ -9,15 +9,25 @@ var items: Array = []
 var array_type: Variant.Type = TYPE_NIL
 
 
-## Initializes the SwapBackArray with type enforcement.
-## @param type_of The Variant.Type to enforce (e.g., TYPE_OBJECT).
+## Initializes the SwapBackArray with type enforcement.[br]
+## [param type_of] is the Variant.Type to enforce (e.g., TYPE_OBJECT).[br]
+## [b]Example[/b]:
+## [codeblock]
+## var array: SwapBackArray = SwapBackArray.new(TYPE_OBJECT)
+## [/codeblock]
 func _init(type_of: Variant.Type) -> void:
 	array_type = type_of
 
 
-## Appends an item to the array with type enforcement and optional naming.
-## @param item The item to append (must match array_type if set).
-## @return True if appended, false if type mismatch.
+## Appends an item to the array with type enforcement and optional naming.[br]
+## [param item] The data to append (must match [param array_type]).[br][br]
+## [b]Returns[/b]: True if appended, false if type mismatch.[br][br]
+## [b]Example[/b]:
+## [codeblock]
+## var array: SwapBackArray = SwapBackArray.new(TYPE_OBJECT)
+## var node: Node3D = Node3D.new()
+## array.append(node)  # Adds node, names it "0"
+## [/codeblock]
 func append(item: Variant) -> bool:
 	if array_type != TYPE_NIL and typeof(item) != array_type:
 		printerr("Item not of type Variant.Type: %d" % array_type)
@@ -28,9 +38,16 @@ func append(item: Variant) -> bool:
 	return true
 
 
-## Removes an item at the specified index using swap-back technique.
-## Swaps with last item for O(1) performance and names TYPE_OBJECT items.
-## @param index The index of the item to remove (0-based).
+## Removes an item at the specified index using swap-back technique.[br]
+## Swaps with the last item for O(1) performance and names TYPE_OBJECT items.[br]
+## [param index] The Index of the item to remove (0-based).[br][br]
+## [b]Example[/b]:
+## [codeblock]
+## var array: SwapBackArray = SwapBackArray.new(TYPE_OBJECT)
+## var node: Node3D = Node3D.new()
+## array.append(node)
+## array.remove(0)  # Removes node, frees it
+## [/codeblock]
 func remove(index: int) -> void:
 	if index < 0 or index >= items.size():
 		return
@@ -45,9 +62,16 @@ func remove(index: int) -> void:
 		removed_item.queue_free()
 
 
-## Finds the index of an item, using name for TYPE_OBJECT optimization.
-## @param item The item to find.
-## @return The index of the item, or -1 if not found or type mismatch.
+## Finds the index of an item, using name for TYPE_OBJECT optimization.[br]
+## [param item] The item to find.[br][br]
+## [b]Returns[/b]: The index of the item, or -1 if not found or type mismatch.[br][br]
+## [b]Example[/b]:
+## [codeblock]
+## var array: SwapBackArray = SwapBackArray.new(TYPE_OBJECT)
+## var node: Node3D = Node3D.new()
+## array.append(node)
+## print(array.get_index(node))  # Prints: 0
+## [/codeblock]
 func get_index(item: Variant) -> int:
 	if array_type != TYPE_NIL and typeof(item) != array_type:
 		return -1
@@ -56,13 +80,26 @@ func get_index(item: Variant) -> int:
 	return items.find(item)
 
 
-## Returns the current number of items in the array.
-## @return The size of the array.
+## Returns the current number of items in the array.[br][br]
+## [b]Returns[/b]: The size of the array.[br][br]
+## [b]Example[/b]:
+## [codeblock]
+## var array: SwapBackArray = SwapBackArray.new(TYPE_INT)
+## array.append(42)
+## print(array.size())  # Prints: 1
+## [/codeblock]
 func size() -> int:
 	return items.size()
 
 
-## Clears all items, freeing TYPE_OBJECT instances.
+## Clears all items, freeing TYPE_OBJECT instances.[br][br]
+## [b]Example[/b]:
+## [codeblock]
+## var array = SwapBackArray.new(TYPE_OBJECT)
+## var node = Node3D.new()
+## array.append(node)
+## array.clear()  # Frees node and empties array
+## [/codeblock]
 func clear() -> void:
 	if array_type == TYPE_OBJECT:
 		for item: Variant in items:
@@ -70,25 +107,43 @@ func clear() -> void:
 	items.clear()
 
 
-## Retrieves an item by its index with bounds checking.
-## @param index The index of the item to retrieve (0-based).
-## @return The item at the index, or null if invalid.
+## Retrieves an item by its index with bounds checking.[br]
+## [param index] The index of the item to retrieve (0-based).[br][br]
+## [b]Returns[/b]: The item at the index, or null if invalid.[br][br]
+## [b]Example[/b]:
+## [codeblock]
+## var array = SwapBackArray.new()
+## array.append(42)
+## print(array.get_by_index(0))  # Prints: 42
+## [/codeblock]
 func get_by_index(index: int) -> Variant:
 	if index < 0 or index >= items.size():
 		return null
 	return items[index]
 
 
-## Retrieves an item by searching for it in the array.
-## @param item The item to find and retrieve.
-## @return The item if found, or null if not found or type mismatch.
+## Retrieves an item by searching for it in the array.[br]
+## [param item] The item to find and retrieve.[br][br]
+## [b]Returns[/b]: The item if found, or null if not found or type mismatch.[br][br]
+## [b]Example[/b]:
+## [codeblock]
+## var array = SwapBackArray.new()
+## array.append(42)
+## print(array.get_by_item(42))  # Prints: 42
+## [/codeblock]
 func get_by_item(item: Variant) -> Variant:
 	var index: int = get_index(item)
 	return get_by_index(index)
 
 
-## Finds the index of an item using linear search (fallback method).
-## @param item The item to find.
-## @return The index of the item, or -1 if not found.
+## Finds the index of an item using linear search (fallback method).[br]
+## [param item] The item to find.[br][br]
+## [b]Returns[/b]: The index of the item, or -1 if not found.[br][br]
+## [b]Example[/b]:
+## [codeblock]
+## var array = SwapBackArray.new()
+## array.append(42)
+## print(array.find(42))  # Prints: 0
+## [/codeblock]
 func find(item: Variant) -> int:
 	return items.find(item)
