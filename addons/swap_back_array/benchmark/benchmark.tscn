@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://rfy4bf6es4a2"]
+
+[ext_resource type="Script" uid="uid://e81pi8ma1ctl" path="res://addons/swap_back_array/benchmark/benchmark.gd" id="1_d0xvd"]
+
+[node name="Benchmark" type="Node" unique_id=2140780972]
+script = ExtResource("1_d0xvd")

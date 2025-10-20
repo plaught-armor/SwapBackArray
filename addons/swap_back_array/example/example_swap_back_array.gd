@@ -9,7 +9,7 @@ extends Node3D
 @export var spawn_radius: float = 2.0
 
 ## Manages spawned instances.
-var array: SwapBackArray = SwapBackArray.new(TYPE_OBJECT)
+var array: SwapBackArray = SwapBackArray.new()
 ## Timer for periodic spawning/removal.
 var timer: float = 0.0
 
@@ -34,12 +34,16 @@ func spawn_instance() -> void:
 	get_tree().root.add_child(instance)
 	var rand_angle: float = randf() * TAU
 	var rand_dist: float = randf() * spawn_radius
-	instance.global_position = global_position + Vector3(cos(rand_angle) * rand_dist, 0, sin(rand_angle) * rand_dist)
-	if not array.append(instance):
-		instance.queue_free()
+	instance.global_position = (
+		global_position + Vector3(cos(rand_angle) * rand_dist, 0, sin(rand_angle) * rand_dist)
+	)
+	array.append(instance)
 
 
 ## Removes a random instance from the array.
 func remove_random_instance() -> void:
 	if array.size() > 0:
-		array.remove(randi() % array.size())
+		var index: int = randi() % array.size()
+		var instance: Node3D = array.get(index)
+		array.remove_at(index)
+		instance.queue_free()
