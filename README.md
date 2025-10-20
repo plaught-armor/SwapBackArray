@@ -1,4 +1,4 @@
-# SwapBackArray Addon for Godot 4.5
+# SwapBackArray Addon for Godot 4.4+
 
 ## Description
 
