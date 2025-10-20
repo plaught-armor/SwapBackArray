@@ -24,6 +24,10 @@ print(array.find(obj))  # Returns index or -1
 array.clear()  # Clears array
 ```
 
+## Example
+An example scene is in `addons/swap_back_array/example`. Open `example_scene.tscn` to see `SwapBackArray` managing custom objects.
+
+
 ## Benchmark Results
 
 `SwapBackArray` was benchmarked against Godot's `Array` in Godot 4.6.dev (b350b01b9) on the following system:
