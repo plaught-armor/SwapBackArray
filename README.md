@@ -2,7 +2,7 @@
 
 ## Description
 
-A lightweight Godot 4.5 addon for efficient array management using the swap-back technique. Two classes:
+A lightweight Godot 4.4+ addon for efficient array management using the swap-back technique. Two classes:
 
 - **`SwapBackArray`** — O(1) `append` and O(1) `remove_at(index)`. No reverse lookup, so every mutation is as cheap as possible. Use when you only ever remove by index.
 - **`FindableSwapBackArray`** — extends the above and adds O(1) `find(item)` / `get_by_item(item)` via an instance-id side table. Pays one hash op per mutation. Use when you need "where is this node".
@@ -79,4 +79,4 @@ Benchmark script/scene is in `addons/swap_back_array/benchmark`. Run `benchmark.
 
 ## License
 
-MIT License. See `LICENSE.txt` for details.
+MIT License. See `LICENSE` for details.
