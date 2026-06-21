@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    name: Package addon
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve versions
+        id: ver
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          cfg="$(grep -oP '^version="\K[^"]+' addons/swap_back_array/plugin.cfg)"
+          echo "tag=$tag"   >> "$GITHUB_OUTPUT"
+          echo "cfg=$cfg"   >> "$GITHUB_OUTPUT"
+          if [ "$tag" != "$cfg" ]; then
+            echo "::error::Tag v$tag does not match plugin.cfg version $cfg"
+            exit 1
+          fi
+
+      - name: Build addon zip
+        run: |
+          name="swap_back_array-${{ steps.ver.outputs.tag }}"
+          mkdir -p "dist/$name"
+          cp -r addons "dist/$name/"
+          cp LICENSE README.md CHANGELOG.md "dist/$name/"
+          ( cd dist && zip -r "$name.zip" "$name" )
+          echo "ASSET=dist/$name.zip" >> "$GITHUB_ENV"
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "$ASSET" \
+            --title "$GITHUB_REF_NAME" \
+            --notes "Packaged \`addons/swap_back_array\` v${{ steps.ver.outputs.tag }}. Install: extract and copy the \`addons/\` folder into your project."
