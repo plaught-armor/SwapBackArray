@@ -1,0 +1,18 @@
+<svg width="480" height="480" viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg">
+  <!-- SwapBackArray mark (light-background variant): deeper cyan for contrast on white -->
+  <g transform="translate(240 255) scale(27.5) translate(-8 -8)">
+    <g fill="none" stroke="#1f8fc9" stroke-width="0.72" stroke-linejoin="round" stroke-linecap="round">
+      <!-- static array cells -->
+      <rect x="1.1" y="8" width="3" height="3" rx="0.4"/>
+      <rect x="8.3" y="8" width="3" height="3" rx="0.4"/>
+      <!-- vacated tail slot (popped after the swap) -->
+      <rect x="11.9" y="8" width="3" height="3" rx="0.4" stroke-dasharray="0.9 0.7" opacity="0.5"/>
+      <!-- swap-back trajectory: tail -> freed slot -->
+      <path d="M13.4 8 C 13.4 3.4 6.2 3.4 6.2 6.7"/>
+    </g>
+    <!-- relocated element now filling the freed slot -->
+    <rect x="4.7" y="8" width="3" height="3" rx="0.4" fill="#1f8fc9"/>
+    <!-- arrowhead landing on it -->
+    <path d="M6.2 7.95 L5.45 6.65 L6.95 6.65 Z" fill="#1f8fc9"/>
+  </g>
+</svg>

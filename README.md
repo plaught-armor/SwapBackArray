@@ -1,3 +1,8 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/logo-lockup-dark.svg">
+  <img alt="SwapBackArray" src="docs/images/logo-lockup-light.svg" width="560">
+</picture>
+
 # SwapBackArray Addon for Godot 4.4+
 
 ## Description
