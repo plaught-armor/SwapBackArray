@@ -4,7 +4,7 @@ extends Node
 ## [b]Tuning Considerations:[/b][br]
 ## - [b]Range:[/b] Covers small (10) to large (10M) arrays to evaluate performance across scenarios. Include sizes relevant to your use case (e.g., typical game object counts). [br]
 ## - [b]Granularity:[/b] Use logarithmic steps (e.g., 10, 100, 1000) to capture performance trends without excessive tests.[br]
-## - [b]Limits:[/b] Very large sizes (e.g., 10M) maystrainmemory or CPU, especially for standard Array’s O(n) removal. If tests stall, cap at 1M or adjust based on hardware.[br]
+## - [b]Limits:[/b] Very large sizes (e.g., 10M) may strain memory or CPU, especially for standard Array’s O(n) removal. If tests stall, cap at 1M or adjust based on hardware.[br]
 ## - [b]Tuning Tip:[/b] Add intermediate sizes (e.g., 500, 5000) if you need finer granularity, or reduce sizes if memory is constrained.
 @export var sizes: Array[int] = [10, 100, 1000, 10000, 100000, 1000000]
 
@@ -38,54 +38,87 @@ func run_benchmarks() -> void:
 		var standard_time: float = benchmark_standard_array(size, num_removals, num_runs)
 		print("Standard Array avg time: %.4f ms" % (standard_time / 1000.0))
 
-		# SwapBackArray benchmark
+		# SwapBackArray benchmark (index-only, no reverse lookup)
 		var swap_time: float = benchmark_swap_array(size, num_removals, num_runs)
 		print("SwapBackArray avg time: %.4f ms" % (swap_time / 1000.0))
 
-		var speedup: float = standard_time / max(swap_time, 0.0001) # Avoid division by zero
-		print("Speedup: %.3fx" % speedup)
+		# FindableSwapBackArray benchmark (maintains instance-id side table)
+		var findable_time: float = benchmark_findable_swap_array(size, num_removals, num_runs)
+		print("FindableSwapBackArray avg time: %.4f ms" % (findable_time / 1000.0))
+
+		var speedup: float = standard_time / maxf(swap_time, 0.0001) # Avoid division by zero
+		print("Speedup vs Standard: %.3fx" % speedup)
+		print("Findable side-table overhead: %.3fx" % (findable_time / maxf(swap_time, 0.0001)))
 
 
-func benchmark_standard_array(array_size: int, num_removals: int, num_runs: int) -> float:
+func benchmark_standard_array(array_size: int, removals: int, runs: int) -> float:
 	var total_time: float = 0.0
 
-	for run: int in num_runs:
+	for run: int in runs:
+		var created: Array[Node] = []
 		var arr: Array[Node] = []
-		for i in array_size:
-			arr.append(Node.new())
+		for i: int in array_size:
+			var node: Node = Node.new()
+			created.append(node)
+			arr.append(node)
 
 		var start: float = Time.get_ticks_msec()
-		for i: int in num_removals:
+		for i: int in removals:
 			if arr.size() > 0:
 				var idx: int = randi() % arr.size()
 				arr.remove_at(idx)
 		var end: float = Time.get_ticks_msec()
 
 		total_time += end - start
-		for node: Node in arr: # Clean up nodes
+		for node: Node in created: # Clean up every node, removed or not
 			node.free()
 
-	return total_time / num_runs
+	return total_time / runs
 
 
-func benchmark_swap_array(array_size: int, num_removals: int, num_runs: int) -> float:
+func benchmark_swap_array(array_size: int, removals: int, runs: int) -> float:
 	var total_time: float = 0.0
 
-	for run: int in num_runs:
+	for run: int in runs:
+		var created: Array[Node] = []
 		var sba: SwapBackArray = SwapBackArray.new()
 		for i: int in array_size:
-			sba.append(Node.new())
+			var node: Node = Node.new()
+			created.append(node)
+			sba.append(node)
 
 		var start: float = Time.get_ticks_msec()
-		for i: int in num_removals:
+		for i: int in removals:
 			if sba.size() > 0:
 				var idx: int = randi() % sba.size()
 				sba.remove_at(idx)
 		var end: float = Time.get_ticks_msec()
 
 		total_time += end - start
-		for i: int in sba.size(): # Clean up nodes
-			var node: Node = sba.get_by_index(i)
-			if node:
-				node.free()
-	return total_time / num_runs
+		for node: Node in created: # Clean up every node, removed or not
+			node.free()
+	return total_time / runs
+
+
+func benchmark_findable_swap_array(array_size: int, removals: int, runs: int) -> float:
+	var total_time: float = 0.0
+
+	for run: int in runs:
+		var created: Array[Node] = []
+		var sba: FindableSwapBackArray = FindableSwapBackArray.new()
+		for i: int in array_size:
+			var node: Node = Node.new()
+			created.append(node)
+			sba.append(node)
+
+		var start: float = Time.get_ticks_msec()
+		for i: int in removals:
+			if sba.size() > 0:
+				var idx: int = randi() % sba.size()
+				sba.remove_at(idx)
+		var end: float = Time.get_ticks_msec()
+
+		total_time += end - start
+		for node: Node in created: # Clean up every node, removed or not
+			node.free()
+	return total_time / runs

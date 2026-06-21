@@ -15,7 +15,9 @@ var timer: float = 0.0
 
 
 func _ready() -> void:
-	assert(spawn_scene, "spawn scene missing")
+	if spawn_scene == null:
+		push_error("[example] spawn_scene missing — disabled")
+		set_process(false)
 
 
 func _process(delta: float) -> void:
@@ -31,7 +33,7 @@ func _process(delta: float) -> void:
 ## Spawns a new instance at a random position.
 func spawn_instance() -> void:
 	var instance: Node3D = spawn_scene.instantiate()
-	get_tree().root.add_child(instance)
+	add_child(instance)
 	var rand_angle: float = randf() * TAU
 	var rand_dist: float = randf() * spawn_radius
 	instance.global_position = (
@@ -44,6 +46,6 @@ func spawn_instance() -> void:
 func remove_random_instance() -> void:
 	if array.size() > 0:
 		var index: int = randi() % array.size()
-		var instance: Node3D = array.get(index)
+		var instance: Node3D = array.get_by_index(index)
 		array.remove_at(index)
 		instance.queue_free()

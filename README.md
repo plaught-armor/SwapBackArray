@@ -2,7 +2,12 @@
 
 ## Description
 
-A lightweight Godot 4.5 addon providing a `SwapBackArray` resource for efficient array management. Features O(1) removal and lookup using the swap-back technique, and using a Node.name for an index property.
+A lightweight Godot 4.5 addon for efficient array management using the swap-back technique. Two classes:
+
+- **`SwapBackArray`** — O(1) `append` and O(1) `remove_at(index)`. No reverse lookup, so every mutation is as cheap as possible. Use when you only ever remove by index.
+- **`FindableSwapBackArray`** — extends the above and adds O(1) `find(item)` / `get_by_item(item)` via an instance-id side table. Pays one hash op per mutation. Use when you need "where is this node".
+
+The contained Node's identity (name, groups, scene path) is never mutated.
 
 ## Installation
 
@@ -14,14 +19,26 @@ A lightweight Godot 4.5 addon providing a `SwapBackArray` resource for efficient
 
 SwapBack Arrays are best used for order agnostic Nodes that need to be stored and quickly removed `(e.g: Inactive Characters)`
 
+Index-only (fastest):
+
 ```gdscript
 var array: SwapBackArray = SwapBackArray.new()
 var obj: Node = Node.new()
-array.append(obj)  # Adds obj, sets obj.name = 0
-array.remove_at(0)  # Removes obj in O(1)
-print(array.get_by_index(0))  # Returns null if invalid
-print(array.find(obj))  # Returns index or -1
-array.clear()  # Clears array
+array.append(obj)             # Adds obj in O(1)
+array.remove_at(0)           # Removes obj in O(1) via swap-back
+print(array.get_by_index(0)) # Returns null if invalid
+array.clear()                # Clears array
+```
+
+With reverse lookup:
+
+```gdscript
+var array: FindableSwapBackArray = FindableSwapBackArray.new()
+var obj: Node = Node.new()
+array.append(obj)
+print(array.find(obj))        # Returns index or -1
+print(array.get_by_item(obj)) # Returns obj or null
+array.remove_at(array.find(obj))
 ```
 
 ## Example
@@ -55,7 +72,7 @@ Benchmark script/scene is in `addons/swap_back_array/benchmark`. Run `benchmark.
 **Notes**:
 
 - Averages over 20 runs, 5000 operations.
-- `SwapBackArray` excels for removals, with speedup increasing with array size. Insertion performance is comparable to `Array.append`, with slight overhead from setting the `index` property.
+- `SwapBackArray` excels for removals, with speedup increasing with array size. Insertion is comparable to `Array.append`. `FindableSwapBackArray` adds slight per-mutation overhead from maintaining its instance-id side table — see the benchmark's "Findable side-table overhead" line.
 - Run benchmark scripts for precise results.
 
 ## License
