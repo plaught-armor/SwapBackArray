@@ -2,10 +2,11 @@
 
 ## Description
 
-A lightweight Godot 4.4+ addon for efficient array management using the swap-back technique. Two classes:
+A lightweight Godot 4.4+ addon for efficient array management using the swap-back technique. Two classes for Nodes and a static helper for packed data:
 
 - **`SwapBackArray`** — O(1) `append` and O(1) `remove_at(index)`. No reverse lookup, so every mutation is as cheap as possible. Use when you only ever remove by index.
 - **`FindableSwapBackArray`** — extends the above and adds O(1) `find(item)` / `get_by_item(item)` via an instance-id side table. Pays one hash op per mutation. Use when you need "where is this node".
+- **`SwapBackUtil`** — static O(1) `remove_at_*` helpers for `Packed*Array` value types (int/float/Vector/Color/String/byte). No wrapper object; you keep your own packed array and the helper swap-removes in place.
 
 The contained Node's identity (name, groups, scene path) is never mutated.
 
@@ -40,6 +41,18 @@ print(array.find(obj))        # Returns index or -1
 print(array.get_by_item(obj)) # Returns obj or null
 array.remove_at(array.find(obj))
 ```
+
+Packed data (no wrapper, in-place):
+
+```gdscript
+var ids: PackedInt32Array = [10, 20, 30, 40]
+SwapBackUtil.remove_at_i32(ids, 1)  # ids == [10, 40, 30] — O(1), order not preserved
+
+var points: PackedVector3Array = [a, b, c]
+SwapBackUtil.remove_at_v3(points, 0)
+```
+
+One `remove_at_*` per packed type: `_byte`, `_i32`, `_i64`, `_f32`, `_f64`, `_str`, `_v2`, `_v3`, `_v4`, `_color`. Out-of-range index is a no-op.
 
 ## Example
 An example scene is in `addons/swap_back_array/example`. Open `example_scene_setup.tscn` to see `SwapBackArray` managing spawned `Node3D` instances.
