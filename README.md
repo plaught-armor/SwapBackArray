@@ -54,6 +54,23 @@ SwapBackUtil.remove_at_v3(points, 0)
 
 One `remove_at_*` per packed type: `_byte`, `_i32`, `_i64`, `_f32`, `_f64`, `_str`, `_v2`, `_v3`, `_v4`, `_color`. Out-of-range index is a no-op.
 
+## Choosing the right tool
+
+| Your data | Use | Notes |
+| --- | --- | --- |
+| Scene-tree Nodes, remove by index only | `SwapBackArray` | Fast path, no reverse lookup |
+| Scene-tree Nodes, need "where is this node" | `FindableSwapBackArray` | Adds O(1) `find`/`get_by_item`; ~3x mutation cost at 1M |
+| Plain scalars/vectors (ids, positions) | `SwapBackUtil` + `Packed*Array` | No wrapper object; lightest option |
+
+### Lifetime: the array does not own its Nodes
+
+`SwapBackArray` stores **non-owning** references to Nodes. Nodes are not reference-counted, so:
+
+- `remove_at` / `clear` only drop the node from the array — they do **not** free it. The node stays in the scene tree; free it yourself (`queue_free()`) if you want it gone.
+- A node freed elsewhere becomes a dangling entry. `FindableSwapBackArray.find` guards against this (it verifies the stored node still matches the looked-up instance id), but `get_by_index` trusts the index — don't keep stale indices across frees.
+
+The classes store `Node`, not `Object`, on purpose. The stored value is a pointer either way, so `Object` would not be "lighter" — it would only widen the contract and blur ownership (an `Array[Object]` holding a `RefCounted` *does* keep it alive, the opposite of the Node contract). For non-Node payloads use `SwapBackUtil`.
+
 ## Example
 An example scene is in `addons/swap_back_array/example`. Open `example_scene_setup.tscn` to see `SwapBackArray` managing spawned `Node3D` instances.
 
