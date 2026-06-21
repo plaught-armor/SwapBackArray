@@ -42,12 +42,12 @@ array.remove_at(array.find(obj))
 ```
 
 ## Example
-An example scene is in `addons/swap_back_array/example`. Open `example_scene.tscn` to see `SwapBackArray` managing custom objects.
+An example scene is in `addons/swap_back_array/example`. Open `example_scene_setup.tscn` to see `SwapBackArray` managing spawned `Node3D` instances.
 
 
 ## Benchmark Results
 
-`SwapBackArray` was benchmarked against Godot's `Array` in Godot 4.6.dev (b350b01b9) on the following system:
+`SwapBackArray` and `FindableSwapBackArray` were benchmarked against Godot's `Array` in Godot 4.8.dev (f964fa714), headless, on the following system:
 
 - **OS**: CachyOS Linux #1 SMP PREEMPT_DYNAMIC Fri, 17 Oct 2025 10:40:14 +0000
 - **Renderer**: Vulkan (Forward+), AMD Radeon RX 7900 XTX (RADV NAVI31)
@@ -58,21 +58,23 @@ Benchmark script/scene is in `addons/swap_back_array/benchmark`. Run `benchmark.
 
 ### Removal Performance
 
-`SwapBackArray.remove_at` (O(1)) outperforms `Array.remove_at` (O(n)).
+`SwapBackArray.remove_at` (O(1)) outperforms `Array.remove_at` (O(n)) at scale. Below ~10K elements the O(1) constant is larger than O(n) on small `n`, so plain `Array` wins — use this addon only when arrays get large.
 
-| Size | Array (ms) | SwapBackArray (ms) | Speedup |
-| --- | --- | --- | --- |
-| 10 | 0.0001 | 0.0016 | 0.06x |
-| 100 | 0.0001 | 0.0016 | 0.03x |
-| 1K | 0.0001 | 0.0015 | 0.10x |
-| 10K | 0.0039 | 0.0017 | 2.27x |
-| 100K | 0.0511 | 0.0016 | 31.94x |
-| 1M | 0.5462 | 0.0015 | 352.39x |
+| Size | Array (ms) | SwapBackArray (ms) | FindableSwapBackArray (ms) | Speedup vs Array | Findable overhead |
+| --- | --- | --- | --- | --- | --- |
+| 10 | 0.0001 | 0.0003 | 0.0003 | 0.14x | 1.00x |
+| 100 | 0.0001 | 0.0003 | 0.0004 | 0.14x | 1.14x |
+| 1K | 0.0001 | 0.0006 | 0.0008 | 0.23x | 1.31x |
+| 10K | 0.0039 | 0.0020 | 0.0029 | 1.95x | 1.43x |
+| 100K | 0.0544 | 0.0020 | 0.0056 | 26.51x | 2.71x |
+| 1M | 0.6339 | 0.0023 | 0.0075 | 275.61x | 3.24x |
 
 **Notes**:
 
-- Averages over 20 runs, 5000 operations.
-- `SwapBackArray` excels for removals, with speedup increasing with array size. Insertion is comparable to `Array.append`. `FindableSwapBackArray` adds slight per-mutation overhead from maintaining its instance-id side table — see the benchmark's "Findable side-table overhead" line.
+- Averages over 20 runs, 5000 random removals per run.
+- `SwapBackArray` (index-only) is the fast path: ~2x faster than `Array` at 10K, ~276x at 1M.
+- `FindableSwapBackArray` pays for its instance-id side table — overhead grows from 1.0x (tiny) to ~3.2x (1M) over the base. Use it only when you need O(1) `find`/`get_by_item`; otherwise use the base.
+- Below ~10K, `Array` is faster than either — the swap-back O(1) constant dominates.
 - Run benchmark scripts for precise results.
 
 ## License
