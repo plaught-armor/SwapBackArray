@@ -82,7 +82,7 @@ The classes store `Node`, not `Object`, on purpose. The stored value is a pointe
 An example scene is in `addons/swap_back_array/example`. Open `example_scene_setup.tscn` to see `SwapBackArray` managing spawned `Node3D` instances.
 
 
-## Benchmark Results
+## Benchmark results
 
 `SwapBackArray` and `FindableSwapBackArray` were benchmarked against Godot's `Array` in Godot 4.8.dev (f964fa714), headless, on the following system:
 
@@ -93,7 +93,7 @@ An example scene is in `addons/swap_back_array/example`. Open `example_scene_set
 
 Benchmark script/scene is in `addons/swap_back_array/benchmark`. Run `benchmark.tscn` for system-specific results.
 
-### Removal Performance
+### Removal performance
 
 `SwapBackArray.remove_at` (O(1)) outperforms `Array.remove_at` (O(n)) at scale. Below ~10K elements the O(1) constant is larger than O(n) on small `n`, so plain `Array` wins — use this addon only when arrays get large.
 
